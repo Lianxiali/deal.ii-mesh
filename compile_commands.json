@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/michael/simulation/dealii-run/ventricle_mesh/step-49",
+  "command": "/usr/bin/mpicxx -DDEBUG -isystem /home/michael/software/dealii-candi/deal.II-master/include -isystem /home/michael/software/dealii-candi/deal.II-master/include/deal.II/bundled -isystem /home/michael/software/dealii-candi/parmetis-4.0.3/include -isystem /home/michael/software/dealii-candi/petsc-3.18.6/include -isystem /home/michael/software/dealii-candi/trilinos-release-13-2-0/include -isystem /home/michael/software/dealii-candi/netcdf-4.7.4/include -isystem /usr/include/suitesparse -isystem /home/michael/software/dealii-candi/hdf5-1.12.2/include -isystem /home/michael/software/dealii-candi/oce-OCE-0.18.3/include/oce -isystem /home/michael/software/dealii-candi/slepc-3.18.3/include -isystem /home/michael/software/dealii-candi/sundials-5.7.0/include -isystem /home/michael/software/dealii-candi/symengine-0.8.1/include -isystem /home/michael/software/dealii-candi/p4est-2.2/FAST/include -pedantic -Wall -Wextra -Wmissing-braces -Woverloaded-virtual -Wpointer-arith -Wsign-compare -Wsuggest-override -Wswitch -Wsynth -Wwrite-strings -Wno-placement-new -Wno-deprecated-declarations -Wno-literal-suffix -Wno-psabi -Wno-class-memaccess -Wno-parentheses -Wno-unused-local-typedefs -fopenmp-simd -O0 -ggdb -Wa,--compress-debug-sections -std=gnu++17 -o CMakeFiles/step-49.dir/step-49.cc.o -c /home/michael/simulation/dealii-run/ventricle_mesh/step-49/step-49.cc",
+  "file": "/home/michael/simulation/dealii-run/ventricle_mesh/step-49/step-49.cc"
+}
+]
