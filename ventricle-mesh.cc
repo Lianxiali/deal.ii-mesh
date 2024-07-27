@@ -212,13 +212,16 @@ void writeVentricleMesh(
     }
 }
 
+template <int dim>
+void createFibers()
+
 int main()
 {
     double endo_short_radius = 7; // Radius of the circle
     double endo_long_radius = 17;
-    const int n_circumferential_cells = 10;
+    const int n_circumferential_cells = 20;
     const int n_radial_cells = 3;
-    const int n_axial_cells = 10; 
+    const int n_axial_cells = 20; 
     const int thickness = 3;
     const double base_elevation = 5;
 
