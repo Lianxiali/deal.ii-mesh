@@ -1,5 +1,14 @@
+
+#include <deal.II/numerics/data_out.h>
+#include <exodusII.h>
 #include <deal.II/grid/tria.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/grid/grid_tools.h>
+#include <deal.II/grid/manifold_lib.h>
 #include <deal.II/grid/grid_out.h>
+#include <deal.II/grid/grid_in.h>
 #include <fstream>
 #include <iostream>
 
@@ -67,7 +76,7 @@ void createVentricle
 
       double radius_inner = fabs(endo_short_radius*sin(u0)); // Radius of the circle
       double radius_outer = fabs(epi_short_radius*sin(u1));
-      std::cout << "z = " << z0 << " z1 = " << z1 << std::endl;
+      // std::cout << "z = " << z0 << " z1 = " << z1 << std::endl;
 
       double dr = (radius_outer - radius_inner) / n_radial_cells;
       double dz = (z1 - z0)/n_radial_cells;
@@ -77,7 +86,7 @@ void createVentricle
         double radius = radius_inner + (j)*dr;
         double z = z0 + j * dz;
 
-        std::cout << "radius = " << radius << std::endl;
+        // std::cout << "radius = " << radius << std::endl;
         std::vector<Point<dim>> circle_points = createPointsOfCircle(num_vertices_x, radius, z);
         vertices.insert(vertices.end(), circle_points.begin(), circle_points.end());
       }
@@ -123,6 +132,86 @@ void createVentricle
     ventricle.create_triangulation(vertices, cells, SubCellData());    
 }
 
+// Set boundary IDs
+template <int dim>
+void setVentricleBoundaryIds(
+    const Triangulation<dim>& ventricle, 
+    const double& base_elevation,
+    const double& endo_short_radius,
+    const double& thickness
+    )
+{   
+    double epi_short_radius = endo_short_radius + thickness;     
+    for (auto &cell : ventricle.active_cell_iterators())
+    {
+        for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f)
+        {
+            if (cell->face(f)->at_boundary())
+            {
+                const Point<dim> face_center = cell->face(f)->center();
+                if (std::abs(face_center[2] - base_elevation) < 1e-12)
+                {
+                    // Top face where z = z0
+                    cell->face(f)->set_boundary_id(1);
+                }
+                else if (std::abs(face_center[0] * face_center[0] + face_center[1] * face_center[1] - std::pow(endo_short_radius, 2)) < 1e-12)
+                {
+                    // Endo face
+                    cell->face(f)->set_boundary_id(2);
+                }
+                else if (std::abs(face_center[0] * face_center[0] + face_center[1] * face_center[1] - std::pow(epi_short_radius, 2)) < 1e-12)
+                {
+                    // Epi face
+                    cell->face(f)->set_boundary_id(3);
+                }
+            }
+        }
+    }   
+}
+
+// Function to write the ventricle mesh to a file
+template <int dim>
+void writeVentricleMesh(
+    const Triangulation<dim>& ventricle,
+    const std::string& filename = "ventricle.vtk"
+    )
+{
+    // Determine the file extension
+    std::string extension = filename.substr(filename.find_last_of('.') + 1);
+
+    // Create boundary names
+    std::map<unsigned int, std::string> boundary_names;
+    boundary_names[1] = "Base";
+    boundary_names[2] = "Endocardium";
+    boundary_names[3] = "Epicardium";
+
+    // Create DataOut object and attach the triangulation
+    DataOut<dim> data_out;
+    data_out.attach_triangulation(ventricle);
+    data_out.build_patches();
+
+    // Output the grid to a file based on the extension
+    if (extension == "vtk")
+    {
+        std::ofstream out(filename);
+        data_out.write_vtk(out);
+    }
+    else if (extension == "msh")
+    {
+        // std::ofstream out(filename);
+        // GridOut::write_msh(ventricle, filename);
+    }
+    else if (extension == "e")
+    {
+        // std::ofstream out(filename);
+        // data_out.write_exodus(out);
+    }    
+    else
+    {
+        throw std::runtime_error("Unsupported file extension: " + extension);
+    }
+}
+
 int main()
 {
     double endo_short_radius = 7; // Radius of the circle
@@ -149,11 +238,14 @@ int main()
     );
 
     // ventricle.refine_global(2);
-
+ setVentricleBoundaryIds(
+    ventricle, 
+    base_elevation,
+    endo_short_radius,
+    thickness
+    );
     // Output the grid to a file for visualization
-    std::ofstream out("ventricle.vtk");
-    GridOut grid_out;
-    grid_out.write_vtk(ventricle, out);
+    writeVentricleMesh(ventricle);
 
     std::cout << "Ventricle mesh has been written to ventricle.vtk" << std::endl;
 

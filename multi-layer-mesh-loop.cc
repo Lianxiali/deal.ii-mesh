@@ -34,36 +34,43 @@ std::vector<Point<3>> createPointsOfCircle(int n, double radius, double z)
 int main()
 {
     int n = 4; // Number of points on the circle
-    double radius_short = 1.0; // Radius of the circle
-    double radius_long  = 2.0;
-    double z_top = 2;
-    double z_bottom = 0;
+    double radius = 1.0; // Radius of the circle
+    constexpr int dim = 3; // Dimension of the space
+    std::vector<Point<3>> circle_points1 = createPointsOfCircle(n, radius,0);
+    std::vector<Point<3>> circle_points2 = createPointsOfCircle(n, radius+1,0);
+    std::vector<Point<3>> circle_points22 = createPointsOfCircle(n, radius+2,0);
 
-    const int num_cells_x = 8;
-    const int num_cells_y = 3;
-    const int num_cells_z = 3; 
+    std::vector<Point<3>> circle_points3 = createPointsOfCircle(n, radius,1);    
+    std::vector<Point<3>> circle_points4 = createPointsOfCircle(n, radius+1,1);
+    std::vector<Point<3>> circle_points44 = createPointsOfCircle(n, radius+2,1);
+
+    std::vector<Point<3>> circle_points5 = createPointsOfCircle(n, radius,2);    
+    std::vector<Point<3>> circle_points6 = createPointsOfCircle(n, radius+1,2);
+    std::vector<Point<3>> circle_points66 = createPointsOfCircle(n, radius+2,2);
+
+    std::vector<Point<3>> vertices(circle_points1.begin(), circle_points1.end());
+    vertices.insert(vertices.end(), circle_points2.begin(), circle_points2.end());
+    vertices.insert(vertices.end(), circle_points22.begin(), circle_points22.end());
+
+    vertices.insert(vertices.end(), circle_points3.begin(), circle_points3.end());
+    vertices.insert(vertices.end(), circle_points4.begin(), circle_points4.end());
+    vertices.insert(vertices.end(), circle_points44.begin(), circle_points44.end());
+
+    vertices.insert(vertices.end(), circle_points5.begin(), circle_points5.end());
+    vertices.insert(vertices.end(), circle_points6.begin(), circle_points6.end());
+    vertices.insert(vertices.end(), circle_points66.begin(), circle_points66.end());
+
+
+
+
+    std::vector<std::array<int, GeometryInfo<dim>::vertices_per_cell>> cell_vertices;
+    const int num_cells_x = 4;
+    const int num_cells_y = 2;
+    const int num_cells_z = 2; 
     const int num_vertices_x = num_cells_x;
     const int num_vertices_y = num_cells_y+1;
     const int num_vertices_z = num_cells_z+1;
-
-    double dr = (radius_long - radius_short) / num_cells_y;
-    double dz = (z_top - z_bottom) / num_cells_z;
-    constexpr int dim = 3; // Dimension of the space
     
-    std::vector<Point<3>> vertices;
-    for(int k = 0; k < num_vertices_z; ++k)
-    {
-      double z = k*dz;
-      for(int j = 0; j < num_vertices_y; ++j)
-      {
-        double radius = (j+1)*dr;
-        std::vector<Point<3>> circle_points = createPointsOfCircle(num_vertices_x, radius, z);
-        vertices.insert(vertices.end(), circle_points.begin(), circle_points.end());
-      }
-    }
-
-    std::vector<std::array<int, GeometryInfo<dim>::vertices_per_cell>> cell_vertices;
-   
     for (int z = 0; z < num_cells_z; ++z)
     {
         for (int y = 0; y < num_cells_y; ++y)
